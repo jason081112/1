@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f7fb">
+  <title>正方体计算器</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #64748b;
+      --accent: #5167e8;
+      --line: #e5eaf2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 32px 18px;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top left, #e6ecff, transparent 40%), #f4f7fb;
+      color: var(--ink);
+      font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .card {
+      width: min(100%, 520px);
+      padding: clamp(24px, 6vw, 42px);
+      border: 1px solid rgba(229, 234, 242, .9);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 24px 70px rgba(37, 53, 100, .12);
+    }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: .82rem; font-weight: 700; letter-spacing: .12em; }
+    h1 { margin: 0; font-size: clamp(1.8rem, 6vw, 2.4rem); line-height: 1.2; }
+    .intro { margin: 12px 0 28px; color: var(--muted); }
+    label { display: block; margin-bottom: 8px; font-weight: 650; }
+    .input-row { display: flex; gap: 10px; }
+    input {
+      min-width: 0;
+      flex: 1;
+      padding: 13px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      outline: none;
+      font: inherit;
+    }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(81, 103, 232, .15); }
+    button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--accent);
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { background: #4054d4; }
+    button:focus-visible { outline: 3px solid #aab5ff; outline-offset: 3px; }
+    .hint, .error { min-height: 24px; margin: 8px 0 0; color: var(--muted); font-size: .9rem; }
+    .error { color: #b42318; }
+    .results { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
+    .result { padding: 17px; border: 1px solid var(--line); border-radius: 15px; background: #fafbff; }
+    .result span { display: block; color: var(--muted); font-size: .9rem; }
+    .result output { display: block; margin-top: 5px; font-size: clamp(1.25rem, 5vw, 1.7rem); font-weight: 750; overflow-wrap: anywhere; }
+    .formula { margin: 24px 0 0; padding-top: 17px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+    @media (max-width: 420px) {
+      .input-row { flex-direction: column; }
+      button { width: 100%; }
+      .results { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <p class="eyebrow">在线小工具</p>
+    <h1>正方体计算器</h1>
+    <p class="intro">输入正方体的边长，快速计算表面积和体积。</p>
+
+    <form id="calculator">
+      <label for="side">边长</label>
+      <div class="input-row">
+        <input id="side" name="side" type="number" min="0" step="any" placeholder="例如：5" required inputmode="decimal" aria-describedby="hint error">
+        <button type="submit">开始计算</button>
+      </div>
+      <p class="hint" id="hint">请输入大于 0 的数字。</p>
+      <p class="error" id="error" role="alert" aria-live="polite"></p>
+    </form>
+
+    <section class="results" aria-label="计算结果" aria-live="polite">
+      <div class="result">
+        <span>表面积</span>
+        <output id="area">—</output>
+      </div>
+      <div class="result">
+        <span>体积</span>
+        <output id="volume">—</output>
+      </div>
+    </section>
+
+    <p class="formula">计算公式：表面积 = 6 × 边长²；体积 = 边长³</p>
+  </main>
+
+  <script>
+    const form = document.querySelector('#calculator');
+    const sideInput = document.querySelector('#side');
+    const areaOutput = document.querySelector('#area');
+    const volumeOutput = document.querySelector('#volume');
+    const error = document.querySelector('#error');
+    const format = new Intl.NumberFormat('zh-CN', { maximumSignificantDigits: 12 });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const side = sideInput.valueAsNumber;
+
+      if (!Number.isFinite(side) || side <= 0) {
+        error.textContent = '请输入一个大于 0 的有效数字。';
+        sideInput.focus();
+        return;
+      }
+
+      const area = 6 * side * side;
+      const volume = side * side * side;
+
+      if (!Number.isFinite(area) || !Number.isFinite(volume)) {
+        error.textContent = '数值过大，无法计算，请输入较小的边长。';
+        return;
+      }
+
+      error.textContent = '';
+      areaOutput.textContent = format.format(area);
+      volumeOutput.textContent = format.format(volume);
+    });
+  </script>
+</body>
+</html>
